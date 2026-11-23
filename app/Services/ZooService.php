@@ -4,11 +4,70 @@ namespace App\Services;
 
 use App\Models\Animal;
 use App\Models\FeedingLog;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ZooService
 {
+    /**
+     * @return array<string, mixed>
+     */
+    public function dashboardData(): array
+    {
+        $today = now()->toDateString();
+
+        return [
+            'summary' => [
+                'animalCount' => Animal::query()->count(),
+                'feedingCountToday' => FeedingLog::query()->whereDate('feeding_date', $today)->count(),
+                'feedQuantityToday' => (float) FeedingLog::query()
+                    ->whereDate('feeding_date', $today)
+                    ->sum('feed_quantity_kg'),
+                'vetReviewCount' => FeedingLog::query()->where('vet_check_required', true)->count(),
+            ],
+            'speciesBreakdown' => Animal::query()
+                ->select('species')
+                ->selectRaw('count(*) as total')
+                ->groupBy('species')
+                ->orderByDesc('total')
+                ->orderBy('species')
+                ->limit(5)
+                ->get(),
+            'recentFeedings' => FeedingLog::query()
+                ->with(['animal:id,animal_tag_id,species', 'zookeeper:id,name', 'feedType:id,name'])
+                ->latest('feeding_date')
+                ->latest('feeding_time')
+                ->limit(6)
+                ->get(),
+        ];
+    }
+
+    /**
+     * @return array{total: int, needsReview: int, totalQuantity: float}
+     */
+    public function feedingLogSummary(): array
+    {
+        return [
+            'total' => FeedingLog::query()->count(),
+            'needsReview' => FeedingLog::query()->where('vet_check_required', true)->count(),
+            'totalQuantity' => (float) FeedingLog::query()->sum('feed_quantity_kg'),
+        ];
+    }
+
+    /**
+     * @return Collection<int, float>
+     */
+    public function dailyFeedingTotals(string $date): Collection
+    {
+        return FeedingLog::query()
+            ->whereDate('feeding_date', $date)
+            ->selectRaw('animal_id, SUM(feed_quantity_kg) as total_quantity')
+            ->groupBy('animal_id')
+            ->pluck('total_quantity', 'animal_id')
+            ->map(fn ($quantity) => (float) $quantity);
+    }
+
     /**
      * @param  array<string, mixed>  $data
      */

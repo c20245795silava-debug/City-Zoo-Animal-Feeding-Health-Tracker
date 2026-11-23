@@ -47,7 +47,8 @@ interface FeedingIndexProps {
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Feeding records', href: '/feeding-logs' }];
 
 function formatDate(date: string): string {
-    return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T00:00:00`));
+    const [year, month, day] = date.slice(0, 10).split('-').map(Number);
+    return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(year, month - 1, day));
 }
 
 function formatTime(time: string): string {
@@ -75,9 +76,7 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
         updateFilters('', filters.review);
     }
 
-    const pageLinks = logs.links.filter(
-        (link): link is PaginationLink & { url: string } => link.url !== null && /^\d+$/.test(link.label),
-    );
+    const pageLinks = logs.links.filter((link): link is PaginationLink & { url: string } => link.url !== null && /^\d+$/.test(link.label));
     const previousUrl = logs.links[0]?.url;
     const nextUrl = logs.links[logs.links.length - 1]?.url;
 
@@ -86,8 +85,8 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
             <Head title="Feeding records" />
             <main className="mx-auto w-full max-w-7xl space-y-7 p-4 md:space-y-8 md:p-8">
                 <section className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-sky-950 via-teal-900 to-emerald-800 px-6 py-8 text-white shadow-lg shadow-sky-950/10 sm:px-9 sm:py-9">
-                    <div className="pointer-events-none absolute -right-10 -top-20 -z-10 size-72 rounded-full border border-white/10" />
-                    <div className="pointer-events-none absolute -bottom-24 right-1/4 -z-10 size-56 rounded-full bg-cyan-300/10 blur-3xl" />
+                    <div className="pointer-events-none absolute -top-20 -right-10 -z-10 size-72 rounded-full border border-white/10" />
+                    <div className="pointer-events-none absolute right-1/4 -bottom-24 -z-10 size-56 rounded-full bg-cyan-300/10 blur-3xl" />
                     <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                         <div className="max-w-2xl">
                             <Badge className="mb-4 border border-white/15 bg-white/10 text-sky-50 hover:bg-white/10">
@@ -112,9 +111,9 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                     <Card className="border-border/70 shadow-sm">
                         <CardContent className="flex items-start justify-between p-5">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Feeding records</p>
+                                <p className="text-muted-foreground text-sm font-medium">Feeding records</p>
                                 <p className="mt-2 text-3xl font-semibold tracking-tight">{summary.total}</p>
-                                <p className="mt-1 text-xs text-muted-foreground">All recorded meals</p>
+                                <p className="text-muted-foreground mt-1 text-xs">All recorded meals</p>
                             </div>
                             <div className="rounded-xl bg-sky-100 p-2.5 text-sky-800 dark:bg-sky-900/50 dark:text-sky-300">
                                 <ClipboardList className="size-5" />
@@ -124,9 +123,9 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                     <Card className="border-border/70 shadow-sm">
                         <CardContent className="flex items-start justify-between p-5">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Marked for vet review</p>
+                                <p className="text-muted-foreground text-sm font-medium">Marked for vet review</p>
                                 <p className="mt-2 text-3xl font-semibold tracking-tight">{summary.needsReview}</p>
-                                <p className="mt-1 text-xs text-muted-foreground">Feeding records requiring follow-up</p>
+                                <p className="text-muted-foreground mt-1 text-xs">Feeding records requiring follow-up</p>
                             </div>
                             <div
                                 className={`rounded-xl p-2.5 ${
@@ -142,12 +141,12 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                     <Card className="border-border/70 shadow-sm">
                         <CardContent className="flex items-start justify-between p-5">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Total feed recorded</p>
+                                <p className="text-muted-foreground text-sm font-medium">Total feed recorded</p>
                                 <p className="mt-2 text-3xl font-semibold tracking-tight">
                                     {summary.totalQuantity.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                                    <span className="ml-1 text-base font-medium text-muted-foreground">kg</span>
+                                    <span className="text-muted-foreground ml-1 text-base font-medium">kg</span>
                                 </p>
-                                <p className="mt-1 text-xs text-muted-foreground">Across all feeding records</p>
+                                <p className="text-muted-foreground mt-1 text-xs">Across all feeding records</p>
                             </div>
                             <div className="rounded-xl bg-emerald-100 p-2.5 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
                                 <Utensils className="size-5" />
@@ -159,7 +158,7 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                 <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h2 className="text-xl font-semibold tracking-tight">Feeding activity</h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
+                        <p className="text-muted-foreground mt-1 text-sm">
                             {logs.total} {logs.total === 1 ? 'record' : 'records'}
                             {filters.review === 'needs-review' ? ' needing vet review' : ''}
                         </p>
@@ -167,11 +166,11 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                     <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
                         <form onSubmit={submitSearch} className="flex w-full gap-2 sm:max-w-md">
                             <div className="relative flex-1 sm:w-72">
-                                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                                 <Input
                                     aria-label="Search feeding records"
                                     placeholder="Animal, feed, keeper, or condition"
-                                    className="pl-9 pr-9"
+                                    className="pr-9 pl-9"
                                     value={search}
                                     onChange={(event) => setSearch(event.target.value)}
                                 />
@@ -180,13 +179,15 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                                         type="button"
                                         aria-label="Clear search"
                                         onClick={clearSearch}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                                        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
                                     >
                                         <X className="size-4" />
                                     </button>
                                 )}
                             </div>
-                            <Button type="submit" variant="secondary">Search</Button>
+                            <Button type="submit" variant="secondary">
+                                Search
+                            </Button>
                         </form>
                         <Select value={filters.review} onValueChange={(value) => updateFilters(search, value)}>
                             <SelectTrigger aria-label="Filter by veterinary review" className="w-full sm:w-48">
@@ -204,8 +205,10 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                     <>
                         <section aria-label="Feeding records" className="grid gap-4 xl:grid-cols-2">
                             {logs.data.map((log) => (
-                                <Card key={log.id} className="overflow-hidden border-border/70 shadow-sm transition-shadow hover:shadow-md">
-                                    <div className={`h-1 ${log.vet_check_required ? 'bg-rose-500' : 'bg-gradient-to-r from-sky-600 to-emerald-400'}`} />
+                                <Card key={log.id} className="border-border/70 overflow-hidden shadow-sm transition-shadow hover:shadow-md">
+                                    <div
+                                        className={`h-1 ${log.vet_check_required ? 'bg-rose-500' : 'bg-gradient-to-r from-sky-600 to-emerald-400'}`}
+                                    />
                                     <CardContent className="p-5">
                                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                                             <div
@@ -221,32 +224,35 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <h3 className="font-semibold">{log.animal.animal_tag_id}</h3>
                                                     {log.vet_check_required && (
-                                                        <Badge variant="outline" className="border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-300">
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-300"
+                                                        >
                                                             <AlertTriangle className="mr-1 size-3" />
                                                             Vet follow-up
                                                         </Badge>
                                                     )}
                                                 </div>
-                                                <p className="mt-1 text-sm text-muted-foreground">
+                                                <p className="text-muted-foreground mt-1 text-sm">
                                                     {log.animal.species} <span className="px-1">·</span> {log.animal.enclosure.zone_name}
                                                 </p>
 
                                                 <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                                    <div className="rounded-xl bg-muted/50 p-3">
-                                                        <p className="text-xs text-muted-foreground">Meal</p>
+                                                    <div className="bg-muted/50 rounded-xl p-3">
+                                                        <p className="text-muted-foreground text-xs">Meal</p>
                                                         <p className="mt-1 truncate text-sm font-medium">{log.feed_type.name}</p>
                                                     </div>
-                                                    <div className="rounded-xl bg-muted/50 p-3">
-                                                        <p className="text-xs text-muted-foreground">Quantity</p>
+                                                    <div className="bg-muted/50 rounded-xl p-3">
+                                                        <p className="text-muted-foreground text-xs">Quantity</p>
                                                         <p className="mt-1 text-sm font-medium">{Number(log.feed_quantity_kg).toLocaleString()} kg</p>
                                                     </div>
-                                                    <div className="col-span-2 rounded-xl bg-muted/50 p-3 sm:col-span-1">
-                                                        <p className="text-xs text-muted-foreground">Health</p>
+                                                    <div className="bg-muted/50 col-span-2 rounded-xl p-3 sm:col-span-1">
+                                                        <p className="text-muted-foreground text-xs">Health</p>
                                                         <p className="mt-1 truncate text-sm font-medium">{log.health_condition || 'Not recorded'}</p>
                                                     </div>
                                                 </div>
 
-                                                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-4 text-xs text-muted-foreground">
+                                                <div className="text-muted-foreground mt-4 flex flex-wrap items-center justify-between gap-2 border-t pt-4 text-xs">
                                                     <span className="inline-flex items-center gap-1.5">
                                                         <CalendarDays className="size-3.5" />
                                                         {formatDate(log.feeding_date)}
@@ -254,7 +260,9 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                                                         <Clock3 className="size-3.5" />
                                                         {formatTime(log.feeding_time)}
                                                     </span>
-                                                    <span>Keeper: <span className="font-medium text-foreground">{log.zookeeper.name}</span></span>
+                                                    <span>
+                                                        Keeper: <span className="text-foreground font-medium">{log.zookeeper.name}</span>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -264,10 +272,10 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                         </section>
 
                         <section className="flex flex-col gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="text-sm text-muted-foreground">
-                                Showing <span className="font-medium text-foreground">{logs.from ?? 0}</span> to{' '}
-                                <span className="font-medium text-foreground">{logs.to ?? 0}</span> of{' '}
-                                <span className="font-medium text-foreground">{logs.total}</span>
+                            <p className="text-muted-foreground text-sm">
+                                Showing <span className="text-foreground font-medium">{logs.from ?? 0}</span> to{' '}
+                                <span className="text-foreground font-medium">{logs.to ?? 0}</span> of{' '}
+                                <span className="text-foreground font-medium">{logs.total}</span>
                             </p>
                             <nav aria-label="Feeding record pages" className="flex items-center justify-between gap-2 sm:justify-end">
                                 {previousUrl ? (
@@ -278,7 +286,10 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                                         </Link>
                                     </Button>
                                 ) : (
-                                    <Button variant="outline" size="sm" disabled><ArrowLeft />Previous</Button>
+                                    <Button variant="outline" size="sm" disabled>
+                                        <ArrowLeft />
+                                        Previous
+                                    </Button>
                                 )}
                                 <div className="flex items-center gap-1">
                                     {pageLinks.map((link) => (
@@ -303,7 +314,10 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                                         </Link>
                                     </Button>
                                 ) : (
-                                    <Button variant="outline" size="sm" disabled>Next<ArrowRight /></Button>
+                                    <Button variant="outline" size="sm" disabled>
+                                        Next
+                                        <ArrowRight />
+                                    </Button>
                                 )}
                             </nav>
                         </section>
@@ -315,9 +329,13 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                                 {filters.review === 'needs-review' ? <AlertTriangle className="size-7" /> : <ClipboardList className="size-7" />}
                             </div>
                             <h3 className="text-lg font-semibold">
-                                {filters.search ? 'No matching feeding records' : filters.review === 'needs-review' ? 'No vet follow-ups' : 'No feeding records yet'}
+                                {filters.search
+                                    ? 'No matching feeding records'
+                                    : filters.review === 'needs-review'
+                                      ? 'No vet follow-ups'
+                                      : 'No feeding records yet'}
                             </h3>
-                            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                            <p className="text-muted-foreground mt-2 max-w-md text-sm">
                                 {filters.search
                                     ? `We couldn't find a feeding record matching “${filters.search}”. Try a different search.`
                                     : filters.review === 'needs-review'
@@ -326,7 +344,13 @@ export default function FeedingIndex({ logs, filters, summary }: FeedingIndexPro
                             </p>
                             <div className="mt-5 flex flex-wrap justify-center gap-2">
                                 {(filters.search || filters.review !== 'all') && (
-                                    <Button variant="outline" onClick={() => { setSearch(''); updateFilters('', 'all'); }}>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setSearch('');
+                                            updateFilters('', 'all');
+                                        }}
+                                    >
                                         <X />
                                         Clear filters
                                     </Button>

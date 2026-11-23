@@ -13,7 +13,7 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
-    Route::resource('animals', AnimalController::class)->only(['index', 'create', 'store', 'update']);
+    Route::resource('animals', AnimalController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::resource('feeding-logs', FeedingLogController::class)->only(['index', 'create', 'store', 'update']);
 });
 

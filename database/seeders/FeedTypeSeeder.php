@@ -9,7 +9,14 @@ class FeedTypeSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['Browse', 'Fish', 'Fresh produce', 'Hay', 'Meat', 'Pellets'] as $name) {
+        $browse = FeedType::query()->where('name', 'Browse')->first();
+        $grainExists = FeedType::query()->where('name', 'Grain')->exists();
+
+        if ($browse && !$grainExists) {
+            $browse->update(['name' => 'Grain']);
+        }
+
+        foreach (['Fish', 'Fresh produce', 'Hay', 'Meat', 'Pellets', 'Grain'] as $name) {
             FeedType::query()->firstOrCreate(['name' => $name]);
         }
     }

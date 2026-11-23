@@ -76,10 +76,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
     const remainingToday = dailyLimit === undefined ? undefined : Math.max(dailyLimit - consumedToday, 0);
     const enteredQuantity = Number(form.data.feed_quantity_kg);
     const overDailyLimit =
-        remainingToday !== undefined &&
-        Number.isFinite(enteredQuantity) &&
-        enteredQuantity > 0 &&
-        enteredQuantity > remainingToday;
+        remainingToday !== undefined && Number.isFinite(enteredQuantity) && enteredQuantity > 0 && enteredQuantity > remainingToday;
     const hasDependencies = animals.length > 0 && zookeepers.length > 0 && feed_types.length > 0;
 
     function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -93,7 +90,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
             <main className="mx-auto w-full max-w-6xl space-y-8 p-4 md:p-8">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                     <div className="space-y-3">
-                        <Button variant="ghost" size="sm" asChild className="-ml-3 text-muted-foreground">
+                        <Button variant="ghost" size="sm" asChild className="text-muted-foreground -ml-3">
                             <Link href="/dashboard">
                                 <ArrowLeft />
                                 Back to dashboard
@@ -105,12 +102,12 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                 DAILY CARE · FEEDING
                             </p>
                             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Record a feeding</h1>
-                            <p className="mt-2 max-w-xl text-muted-foreground">
+                            <p className="text-muted-foreground mt-2 max-w-xl">
                                 Log a meal, note the animal’s condition, and keep daily nutrition within its species standard.
                             </p>
                         </div>
                     </div>
-                    <div className="hidden items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm text-muted-foreground sm:flex">
+                    <div className="bg-background text-muted-foreground hidden items-center gap-2 rounded-full border px-4 py-2 text-sm sm:flex">
                         <ShieldCheck className="size-4 text-emerald-600" />
                         Dietary limits are checked on save
                     </div>
@@ -128,15 +125,13 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                     <Alert className="border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
                         <AlertTriangle className="size-4" />
                         <AlertTitle>Setup needed before logging</AlertTitle>
-                        <AlertDescription>
-                            Add an animal, a zookeeper, and a feed type before recording feeding activity.
-                        </AlertDescription>
+                        <AlertDescription>Add an animal, a zookeeper, and a feed type before recording feeding activity.</AlertDescription>
                     </Alert>
                 )}
 
                 <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
                     <Card className="overflow-hidden">
-                        <CardHeader className="border-b bg-muted/20 px-6 py-5">
+                        <CardHeader className="bg-muted/20 border-b px-6 py-5">
                             <CardTitle className="text-xl">Feeding details</CardTitle>
                             <CardDescription>Choose who was fed, what they received, and when.</CardDescription>
                         </CardHeader>
@@ -163,7 +158,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                            {form.errors.animal_id && <p className="text-sm text-destructive">{form.errors.animal_id}</p>}
+                                            {form.errors.animal_id && <p className="text-destructive text-sm">{form.errors.animal_id}</p>}
                                         </div>
 
                                         <div className="space-y-2">
@@ -184,7 +179,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                            {form.errors.feed_type_id && <p className="text-sm text-destructive">{form.errors.feed_type_id}</p>}
+                                            {form.errors.feed_type_id && <p className="text-destructive text-sm">{form.errors.feed_type_id}</p>}
                                         </div>
 
                                         <div className="space-y-2">
@@ -203,24 +198,27 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                                     aria-invalid={Boolean(form.errors.feed_quantity_kg)}
                                                     required
                                                 />
-                                                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">kg</span>
+                                                <span className="text-muted-foreground pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm">
+                                                    kg
+                                                </span>
                                             </div>
                                             {form.errors.feed_quantity_kg ? (
-                                                <p className="text-sm text-destructive">{form.errors.feed_quantity_kg}</p>
+                                                <p className="text-destructive text-sm">{form.errors.feed_quantity_kg}</p>
                                             ) : (
-                                                <p className="text-xs text-muted-foreground">Up to three decimal places.</p>
+                                                <p className="text-muted-foreground text-xs">Up to three decimal places.</p>
                                             )}
                                         </div>
                                     </div>
 
-                                    {selectedAnimal && (
-                                        dailyLimit !== undefined ? (
-                                            <div className="rounded-xl border bg-muted/30 p-4">
+                                    {selectedAnimal &&
+                                        (dailyLimit !== undefined ? (
+                                            <div className="bg-muted/30 rounded-xl border p-4">
                                                 <div className="flex items-start justify-between gap-4">
                                                     <div>
                                                         <p className="text-sm font-medium">Today’s dietary allowance</p>
-                                                        <p className="mt-1 text-xs text-muted-foreground">
-                                                            {consumedToday.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg logged of {dailyLimit} kg for {selectedAnimal.species}
+                                                        <p className="text-muted-foreground mt-1 text-xs">
+                                                            {consumedToday.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg logged of{' '}
+                                                            {dailyLimit} kg for {selectedAnimal.species}
                                                         </p>
                                                     </div>
                                                     <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-900 dark:bg-emerald-900/50 dark:text-emerald-200">
@@ -228,7 +226,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                                     </span>
                                                 </div>
                                                 <div
-                                                    className="mt-3 h-2 overflow-hidden rounded-full bg-muted"
+                                                    className="bg-muted mt-3 h-2 overflow-hidden rounded-full"
                                                     role="progressbar"
                                                     aria-label={`${selectedAnimal.species} daily feed allowance used`}
                                                     aria-valuenow={Math.min(consumedToday, dailyLimit)}
@@ -251,11 +249,11 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                                 <AlertTriangle className="size-4" />
                                                 <AlertTitle>Dietary limit not configured</AlertTitle>
                                                 <AlertDescription>
-                                                    There is no daily feed standard for {selectedAnimal.species}. Ask an administrator to configure its approved limit before saving.
+                                                    There is no daily feed standard for {selectedAnimal.species}. Ask an administrator to configure
+                                                    its approved limit before saving.
                                                 </AlertDescription>
                                             </Alert>
-                                        )
-                                    )}
+                                        ))}
                                 </section>
 
                                 <section className="space-y-4 border-t pt-6">
@@ -279,7 +277,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                            {form.errors.zookeeper_id && <p className="text-sm text-destructive">{form.errors.zookeeper_id}</p>}
+                                            {form.errors.zookeeper_id && <p className="text-destructive text-sm">{form.errors.zookeeper_id}</p>}
                                         </div>
 
                                         <div className="space-y-2">
@@ -292,7 +290,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                                 aria-invalid={Boolean(form.errors.feeding_date)}
                                                 required
                                             />
-                                            {form.errors.feeding_date && <p className="text-sm text-destructive">{form.errors.feeding_date}</p>}
+                                            {form.errors.feeding_date && <p className="text-destructive text-sm">{form.errors.feeding_date}</p>}
                                         </div>
 
                                         <div className="space-y-2">
@@ -307,9 +305,9 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                                     aria-invalid={Boolean(form.errors.feeding_time)}
                                                     required
                                                 />
-                                                <Clock3 className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                                <Clock3 className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
                                             </div>
-                                            {form.errors.feeding_time && <p className="text-sm text-destructive">{form.errors.feeding_time}</p>}
+                                            {form.errors.feeding_time && <p className="text-destructive text-sm">{form.errors.feeding_time}</p>}
                                         </div>
                                     </div>
                                 </section>
@@ -317,7 +315,9 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                 <section className="space-y-4 border-t pt-6">
                                     <div>
                                         <h2 className="text-sm font-semibold">Health observation</h2>
-                                        <p className="mt-1 text-xs text-muted-foreground">A “Poor” condition automatically requires a veterinary check.</p>
+                                        <p className="text-muted-foreground mt-1 text-xs">
+                                            A “Poor” condition automatically requires a veterinary check.
+                                        </p>
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="health_condition">Condition</Label>
@@ -342,7 +342,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                                 <SelectItem value="Under observation">Under observation</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {form.errors.health_condition && <p className="text-sm text-destructive">{form.errors.health_condition}</p>}
+                                        {form.errors.health_condition && <p className="text-destructive text-sm">{form.errors.health_condition}</p>}
                                     </div>
                                     <div className="flex items-start gap-3 rounded-xl border p-4">
                                         <Checkbox
@@ -352,8 +352,12 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                             disabled={form.data.health_condition.toLowerCase() === 'poor' || form.processing}
                                         />
                                         <div className="space-y-1">
-                                            <Label htmlFor="vet_check_required" className="cursor-pointer">Flag for veterinary follow-up</Label>
-                                            <p className="text-xs text-muted-foreground">Select this if the animal needs a vet check, regardless of its condition selection.</p>
+                                            <Label htmlFor="vet_check_required" className="cursor-pointer">
+                                                Flag for veterinary follow-up
+                                            </Label>
+                                            <p className="text-muted-foreground text-xs">
+                                                Select this if the animal needs a vet check, regardless of its condition selection.
+                                            </p>
                                         </div>
                                     </div>
                                 </section>
@@ -374,7 +378,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                     <aside className="space-y-4">
                         <Card className="overflow-hidden border-sky-950 bg-gradient-to-br from-sky-950 to-teal-900 text-sky-50 shadow-sm">
                             <CardContent className="relative space-y-5 p-6">
-                                <div className="absolute -right-7 -top-8 size-36 rounded-full bg-teal-400/20 blur-2xl" />
+                                <div className="absolute -top-8 -right-7 size-36 rounded-full bg-teal-400/20 blur-2xl" />
                                 <div className="relative flex size-11 items-center justify-center rounded-xl bg-white/10">
                                     <PawPrint className="size-5 text-teal-200" />
                                 </div>
@@ -392,7 +396,7 @@ export default function CreateFeeding({ animals, zookeepers, feed_types, dailyTo
                                 <CardTitle className="text-base">Care checklist</CardTitle>
                                 <CardDescription>Before submitting a feeding record</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-3 text-sm text-muted-foreground">
+                            <CardContent className="text-muted-foreground space-y-3 text-sm">
                                 <p className="flex gap-2">
                                     <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
                                     Confirm the animal and the feed type.

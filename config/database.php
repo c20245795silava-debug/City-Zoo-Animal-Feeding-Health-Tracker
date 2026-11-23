@@ -2,6 +2,14 @@
 
 use Illuminate\Support\Str;
 
+$databaseConnection = env('DB_CONNECTION', 'sqlite');
+$databaseName = env('DB_DATABASE');
+
+if (strcasecmp(trim((string) $databaseName), 'City Zoo Animal Feeding & Health Tracker') === 0) {
+    $databaseConnection = 'sqlite';
+    $databaseName = 'database/database.sqlite';
+}
+
 return [
 
     /*
@@ -16,7 +24,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => $databaseConnection,
 
     /*
     |--------------------------------------------------------------------------
@@ -34,7 +42,7 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => $databaseName ?? database_path('database.sqlite'),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,

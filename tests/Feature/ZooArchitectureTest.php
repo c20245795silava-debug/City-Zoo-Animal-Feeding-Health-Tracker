@@ -9,8 +9,10 @@ use App\Models\FeedType;
 use App\Models\User;
 use App\Models\Zookeeper;
 use Database\Seeders\EnclosureSeeder;
+use Database\Seeders\FeedTypeSeeder;
 use Database\Seeders\ZooReferenceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -32,6 +34,19 @@ class ZooArchitectureTest extends TestCase
             ->assertJsonPath('species', 'Lion');
     }
 
+    public function test_animal_updates_normalize_tags_and_sanitize_species(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $animal = $this->createAnimal('LION-11', 'Lion');
+
+        $this->putJson(route('animals.update', $animal), [
+            'animal_tag_id' => '  lion-12 ',
+            'species' => '<b>White Lion</b>',
+        ])->assertOk()
+            ->assertJsonPath('animal_tag_id', 'LION-12')
+            ->assertJsonPath('species', 'White Lion');
+    }
+
     public function test_animal_create_page_renders_with_enclosure_options(): void
     {
         $this->actingAs(User::factory()->create());
@@ -44,6 +59,40 @@ class ZooArchitectureTest extends TestCase
                 ->has('enclosures', 1)
                 ->where('enclosures.0.zone_name', 'Savannah')
                 ->has('species'));
+    }
+
+    public function test_animal_edit_page_renders_existing_animal_and_enclosure_options(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $animal = $this->createAnimal('BIRD-001', 'Ostriche');
+
+        $this->get(route('animals.edit', $animal))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('animals/edit')
+                ->where('animal.animal_tag_id', 'BIRD-001')
+                ->where('animal.species', 'Ostriche')
+                ->where('animal.enclosure_id', $animal->enclosure_id)
+                ->has('enclosures', 1)
+                ->has('species'));
+    }
+
+    public function test_animal_can_be_updated_from_the_browser(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $animal = $this->createAnimal('BIRD-001', 'Ostriche');
+
+        $this->put(route('animals.update', $animal), [
+            'animal_tag_id' => 'BIRD-001',
+            'species' => 'Ostrich',
+            'enclosure_id' => $animal->enclosure_id,
+        ])->assertRedirect(route('animals.index'))
+            ->assertSessionHas('success', 'Animal updated successfully.');
+
+        $this->assertDatabaseHas('animals', [
+            'id' => $animal->id,
+            'species' => 'Ostrich',
+        ]);
     }
 
     public function test_animal_directory_renders_searchable_paginated_animals(): void
@@ -102,10 +151,10 @@ class ZooArchitectureTest extends TestCase
         $this->seed(EnclosureSeeder::class);
         $this->seed(EnclosureSeeder::class);
 
-        $this->assertDatabaseCount('enclosures', 3);
-        $this->assertDatabaseHas('enclosures', ['zone_name' => 'Savannah']);
-        $this->assertDatabaseHas('enclosures', ['zone_name' => 'Rainforest']);
-        $this->assertDatabaseHas('enclosures', ['zone_name' => 'Aquatic']);
+        $this->assertDatabaseCount('enclosures', 6);
+        foreach (['Savannah', 'Rainforest', 'Aquatic', 'Grassland', 'Tropical Forest and Grasslands', 'Wetland'] as $zoneName) {
+            $this->assertDatabaseHas('enclosures', ['zone_name' => $zoneName]);
+        }
     }
 
     public function test_zoo_reference_seeder_populates_feed_types_and_a_demo_keeper_idempotently(): void
@@ -119,6 +168,18 @@ class ZooArchitectureTest extends TestCase
         $this->assertDatabaseHas('feed_types', ['name' => 'Fish']);
         $this->assertDatabaseHas('feed_types', ['name' => 'Meat']);
         $this->assertDatabaseHas('feed_types', ['name' => 'Hay']);
+        $this->assertDatabaseHas('feed_types', ['name' => 'Grain']);
+        $this->assertDatabaseMissing('feed_types', ['name' => 'Browse']);
+    }
+
+    public function test_feed_type_seeder_renames_the_obsolete_browse_type_to_grain(): void
+    {
+        $browse = FeedType::create(['name' => 'Browse']);
+
+        $this->seed(FeedTypeSeeder::class);
+
+        $this->assertDatabaseHas('feed_types', ['id' => $browse->id, 'name' => 'Grain']);
+        $this->assertDatabaseMissing('feed_types', ['name' => 'Browse']);
     }
 
     public function test_daily_species_feed_limit_is_enforced(): void
@@ -139,12 +200,20 @@ class ZooArchitectureTest extends TestCase
 
     public function test_feeding_create_page_renders_with_dependencies_and_daily_limits(): void
     {
+        $this->travelTo(Carbon::parse('2026-11-09 12:00:00'));
         config()->set('zoo.daily_feed_limits_kg', ['Lion' => 10]);
         $this->actingAs(User::factory()->create());
         $animal = $this->createAnimal('LION-06', 'Lion');
         $keeper = Zookeeper::create(['name' => 'Keeper']);
         $feed = FeedType::create(['name' => 'Meat']);
-        FeedingLog::create($this->feedingLogPayload($animal, $keeper, $feed, 2));
+        FeedingLog::create([
+            ...$this->feedingLogPayload($animal, $keeper, $feed, 8),
+            'feeding_date' => '2026-11-08',
+        ]);
+        FeedingLog::create([
+            ...$this->feedingLogPayload($animal, $keeper, $feed, 2),
+            'feeding_date' => '2026-11-09',
+        ]);
 
         $this->get(route('feeding-logs.create'))
             ->assertOk()
@@ -235,6 +304,23 @@ class ZooArchitectureTest extends TestCase
         ]);
 
         $response->assertCreated()
+            ->assertJsonPath('health_condition', 'Poor')
+            ->assertJsonPath('vet_check_required', true);
+    }
+
+    public function test_updating_health_to_poor_forces_a_vet_check_even_if_unchecked(): void
+    {
+        config()->set('zoo.daily_feed_limits_kg', ['Lion' => 10]);
+        $this->actingAs(User::factory()->create());
+        $animal = $this->createAnimal('LION-12', 'Lion');
+        $keeper = Zookeeper::create(['name' => 'Keeper']);
+        $feed = FeedType::create(['name' => 'Meat']);
+        $log = FeedingLog::create($this->feedingLogPayload($animal, $keeper, $feed, 2));
+
+        $this->putJson(route('feeding-logs.update', $log), [
+            'health_condition' => '<b>Poor</b>',
+            'vet_check_required' => false,
+        ])->assertOk()
             ->assertJsonPath('health_condition', 'Poor')
             ->assertJsonPath('vet_check_required', true);
     }

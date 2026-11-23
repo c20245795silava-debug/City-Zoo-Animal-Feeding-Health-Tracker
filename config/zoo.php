@@ -6,5 +6,9 @@ return [
         'African Lion' => 10,
         'American Cow' => 30,
         'Megalodon' => 100,
+        'Siberian Tiger' => 100,
+        'Elephant' => 100,
+        'Ostrich' => 50,
+        'Lion' => 100,
     ],
 ];

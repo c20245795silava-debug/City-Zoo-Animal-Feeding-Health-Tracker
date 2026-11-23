@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, MapPin, PawPrint, Plus, Search, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MapPin, PawPrint, Pencil, Plus, Search, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface Animal {
@@ -56,11 +56,11 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
 
     function searchAnimals(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        router.get(
-            route('animals.index'),
-            search.trim() ? { search: search.trim() } : {},
-            { preserveState: true, preserveScroll: true, replace: true },
-        );
+        router.get(route('animals.index'), search.trim() ? { search: search.trim() } : {}, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
     }
 
     function clearSearch() {
@@ -68,9 +68,7 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
         router.get(route('animals.index'), {}, { preserveState: true, preserveScroll: true, replace: true });
     }
 
-    const pageLinks = animals.links.filter(
-        (link): link is PaginationLink & { url: string } => link.url !== null && /^\d+$/.test(link.label),
-    );
+    const pageLinks = animals.links.filter((link): link is PaginationLink & { url: string } => link.url !== null && /^\d+$/.test(link.label));
     const previousUrl = animals.links[0]?.url;
     const nextUrl = animals.links[animals.links.length - 1]?.url;
 
@@ -79,8 +77,8 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
             <Head title="Animal directory" />
             <main className="mx-auto w-full max-w-7xl space-y-7 p-4 md:space-y-8 md:p-8">
                 <section className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-800 px-6 py-8 text-white shadow-lg shadow-emerald-950/10 sm:px-9 sm:py-9">
-                    <div className="pointer-events-none absolute -right-10 -top-20 -z-10 size-72 rounded-full border border-white/10" />
-                    <div className="pointer-events-none absolute -bottom-24 right-1/4 -z-10 size-56 rounded-full bg-lime-300/10 blur-3xl" />
+                    <div className="pointer-events-none absolute -top-20 -right-10 -z-10 size-72 rounded-full border border-white/10" />
+                    <div className="pointer-events-none absolute right-1/4 -bottom-24 -z-10 size-56 rounded-full bg-lime-300/10 blur-3xl" />
                     <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                         <div className="max-w-2xl">
                             <Badge className="mb-4 border border-white/15 bg-white/10 text-emerald-50 hover:bg-white/10">
@@ -114,17 +112,17 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
                 <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-xl font-semibold tracking-tight">Animal directory</h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
+                        <p className="text-muted-foreground mt-1 text-sm">
                             {animals.total} {animals.total === 1 ? 'animal' : 'animals'} registered
                         </p>
                     </div>
                     <form onSubmit={searchAnimals} className="flex w-full gap-2 sm:max-w-md">
                         <div className="relative flex-1">
-                            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                             <Input
                                 aria-label="Search animals"
                                 placeholder="Search tag, species, or enclosure"
-                                className="pl-9 pr-9"
+                                className="pr-9 pl-9"
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
                             />
@@ -133,7 +131,7 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
                                     type="button"
                                     aria-label="Clear search"
                                     onClick={clearSearch}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
                                 >
                                     <X className="size-4" />
                                 </button>
@@ -151,7 +149,7 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
                             {animals.data.map((animal, index) => (
                                 <Card
                                     key={animal.id}
-                                    className="group overflow-hidden border-border/70 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                                    className="group border-border/70 overflow-hidden shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                                 >
                                     <div
                                         className={`h-1.5 ${
@@ -170,7 +168,7 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
                                                 </div>
                                                 <div className="min-w-0">
                                                     <h3 className="truncate font-semibold">{animal.species}</h3>
-                                                    <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">{animal.animal_tag_id}</p>
+                                                    <p className="text-muted-foreground mt-0.5 truncate font-mono text-xs">{animal.animal_tag_id}</p>
                                                 </div>
                                             </div>
                                             <Badge variant="outline" className="shrink-0">
@@ -179,15 +177,15 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
                                         </div>
 
                                         <div className="mt-5 grid grid-cols-2 gap-3">
-                                            <div className="rounded-xl bg-muted/50 p-3">
-                                                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                            <div className="bg-muted/50 rounded-xl p-3">
+                                                <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
                                                     <MapPin className="size-3.5" />
                                                     Enclosure
                                                 </p>
                                                 <p className="mt-1.5 truncate text-sm font-medium">{animal.enclosure.zone_name}</p>
                                             </div>
-                                            <div className="rounded-xl bg-muted/50 p-3">
-                                                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                            <div className="bg-muted/50 rounded-xl p-3">
+                                                <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
                                                     <PawPrint className="size-3.5" />
                                                     Feeding logs
                                                 </p>
@@ -197,15 +195,29 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
                                             </div>
                                         </div>
 
-                                        <div className="mt-4 flex items-center justify-between border-t pt-4 text-xs text-muted-foreground">
-                                            <span>Added {new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(animal.created_at))}</span>
-                                            <Link
-                                                href={route('feeding-logs.create')}
-                                                className="inline-flex items-center gap-1 font-medium text-emerald-800 transition-colors hover:text-emerald-950 dark:text-emerald-300 dark:hover:text-emerald-100"
-                                            >
-                                                Log a feeding
-                                                <ArrowRight className="size-3.5" />
-                                            </Link>
+                                        <div className="text-muted-foreground mt-4 flex items-center justify-between border-t pt-4 text-xs">
+                                            <span>
+                                                Added{' '}
+                                                {new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(
+                                                    new Date(animal.created_at),
+                                                )}
+                                            </span>
+                                            <div className="flex items-center gap-3">
+                                                <Link
+                                                    href={route('animals.edit', animal.id)}
+                                                    className="inline-flex items-center gap-1 font-medium text-emerald-800 transition-colors hover:text-emerald-950 dark:text-emerald-300 dark:hover:text-emerald-100"
+                                                >
+                                                    <Pencil className="size-3.5" />
+                                                    Edit
+                                                </Link>
+                                                <Link
+                                                    href={route('feeding-logs.create')}
+                                                    className="inline-flex items-center gap-1 font-medium text-emerald-800 transition-colors hover:text-emerald-950 dark:text-emerald-300 dark:hover:text-emerald-100"
+                                                >
+                                                    Log a feeding
+                                                    <ArrowRight className="size-3.5" />
+                                                </Link>
+                                            </div>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -213,10 +225,10 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
                         </section>
 
                         <section className="flex flex-col gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="text-sm text-muted-foreground">
-                                Showing <span className="font-medium text-foreground">{animals.from ?? 0}</span> to{' '}
-                                <span className="font-medium text-foreground">{animals.to ?? 0}</span> of{' '}
-                                <span className="font-medium text-foreground">{animals.total}</span>
+                            <p className="text-muted-foreground text-sm">
+                                Showing <span className="text-foreground font-medium">{animals.from ?? 0}</span> to{' '}
+                                <span className="text-foreground font-medium">{animals.to ?? 0}</span> of{' '}
+                                <span className="text-foreground font-medium">{animals.total}</span>
                             </p>
                             <nav aria-label="Animal directory pages" className="flex items-center justify-between gap-2 sm:justify-end">
                                 {previousUrl ? (
@@ -270,7 +282,7 @@ export default function AnimalIndex({ animals, filters }: AnimalIndexProps) {
                                 {filters.search ? <Search className="size-7" /> : <PawPrint className="size-7" />}
                             </div>
                             <h3 className="text-lg font-semibold">{filters.search ? 'No matching animals' : 'Your directory is ready'}</h3>
-                            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                            <p className="text-muted-foreground mt-2 max-w-md text-sm">
                                 {filters.search
                                     ? `We couldn't find an animal matching “${filters.search}”. Try a different tag, species, or enclosure.`
                                     : 'Register your first animal to start building the zoo care directory.'}

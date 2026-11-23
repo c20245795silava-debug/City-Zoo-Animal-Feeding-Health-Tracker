@@ -12,13 +12,13 @@ use App\Services\ZooService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+
 use Inertia\Inertia;
 use Inertia\Response;
 
 class FeedingLogController extends Controller
 {
-    public function index(Request $request): JsonResponse|Response
+    public function index(Request $request, ZooService $service): JsonResponse|Response
     {
         $search = trim((string) $request->query('search', ''));
         $review = $request->query('review') === 'needs-review' ? 'needs-review' : 'all';
@@ -47,34 +47,22 @@ class FeedingLogController extends Controller
         return Inertia::render('feedings/index', [
             'logs' => $logs,
             'filters' => ['search' => $search, 'review' => $review],
-            'summary' => [
-                'total' => FeedingLog::query()->count(),
-                'needsReview' => FeedingLog::query()->where('vet_check_required', true)->count(),
-                'totalQuantity' => (float) FeedingLog::query()->sum('feed_quantity_kg'),
-            ],
+            'summary' => $service->feedingLogSummary(),
         ]);
     }
 
-    public function create(): JsonResponse|Response
+    public function create(ZooService $service): JsonResponse|Response
     {
         $animals = Animal::query()
             ->with('enclosure:id,zone_name')
             ->orderBy('animal_tag_id')
             ->get(['id', 'animal_tag_id', 'species', 'enclosure_id']);
-        $referenceDate = FeedingLog::query()->max('feeding_date');
-        $referenceDate = $referenceDate ? Carbon::parse($referenceDate)->toDateString() : now()->toDateString();
-
-        $dailyTotals = FeedingLog::query()
-            ->whereDate('feeding_date', $referenceDate)
-            ->selectRaw('animal_id, SUM(feed_quantity_kg) as total_quantity')
-            ->groupBy('animal_id')
-            ->pluck('total_quantity', 'animal_id')
-            ->map(fn ($quantity) => (float) $quantity);
+        $today = now()->toDateString();
         $options = [
             'animals' => $animals,
             'zookeepers' => Zookeeper::query()->orderBy('name')->get(['id', 'name']),
             'feed_types' => FeedType::query()->orderBy('name')->get(['id', 'name']),
-            'dailyTotals' => $dailyTotals,
+            'dailyTotals' => $service->dailyFeedingTotals($today),
             'dailyFeedLimits' => config('zoo.daily_feed_limits_kg', []),
         ];
 
@@ -84,7 +72,7 @@ class FeedingLogController extends Controller
 
         return Inertia::render('feedings/create', [
             ...$options,
-            'today' => now()->toDateString(),
+            'today' => $today,
             'currentTime' => now()->format('H:i'),
         ]);
     }

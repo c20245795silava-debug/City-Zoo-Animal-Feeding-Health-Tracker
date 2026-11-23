@@ -50,6 +50,15 @@ class AnimalController extends Controller
         ]);
     }
 
+    public function edit(string $id): Response
+    {
+        return Inertia::render('animals/edit', [
+            'animal' => Animal::query()->findOrFail($id),
+            'enclosures' => Enclosure::query()->orderBy('zone_name')->get(['id', 'zone_name']),
+            'species' => array_keys(config('zoo.daily_feed_limits_kg', [])),
+        ]);
+    }
+
     public function store(StoreAnimalRequest $request, ZooService $service): JsonResponse|RedirectResponse
     {
         $animal = $service->createAnimal($request->validated());
@@ -61,10 +70,15 @@ class AnimalController extends Controller
         return to_route('animals.index')->with('success', 'Animal registered successfully.');
     }
 
-    public function update(UpdateAnimalRequest $request, string $id, ZooService $service): JsonResponse
+    public function update(UpdateAnimalRequest $request, string $id, ZooService $service): JsonResponse|RedirectResponse
     {
         $animal = Animal::query()->findOrFail($id);
+        $animal = $service->updateAnimal($animal, $request->validated());
 
-        return response()->json($service->updateAnimal($animal, $request->validated())->load('enclosure'));
+        if ($request->wantsJson()) {
+            return response()->json($animal->load('enclosure'));
+        }
+
+        return to_route('animals.index')->with('success', 'Animal updated successfully.');
     }
 }

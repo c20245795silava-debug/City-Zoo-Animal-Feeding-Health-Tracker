@@ -7,7 +7,8 @@ export default function AppLogo() {
                 <AppLogoIcon className="size-5 fill-current text-white dark:text-black" />
             </div>
             <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="mb-0.5 truncate leading-none font-semibold">Laravel Starter Kit</span>
+                <span className="truncate leading-none font-semibold">City Zoo</span>
+                <span className="text-muted-foreground mt-1 truncate text-xs">Feeding &amp; health tracker</span>
             </div>
         </>
     );

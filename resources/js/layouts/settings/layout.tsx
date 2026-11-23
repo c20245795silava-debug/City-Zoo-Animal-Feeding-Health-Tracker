@@ -21,6 +21,21 @@ const sidebarNavItems: NavItem[] = [
         url: '/settings/appearance',
         icon: null,
     },
+    {
+        title: 'Enclosures',
+        url: '/settings/enclosures',
+        icon: null,
+    },
+    {
+        title: 'Feed types',
+        url: '/settings/feed-types',
+        icon: null,
+    },
+    {
+        title: 'Zookeepers',
+        url: '/settings/zookeepers',
+        icon: null,
+    },
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {

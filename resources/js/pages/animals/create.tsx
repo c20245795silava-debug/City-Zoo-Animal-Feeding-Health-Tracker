@@ -5,10 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { ArrowLeft, CheckCircle2, PawPrint, ShieldCheck, Sparkles } from 'lucide-react';
-import { type SharedData } from '@/types';
 
 interface EnclosureOption {
     id: number;
@@ -48,7 +47,7 @@ export default function CreateAnimal({ enclosures, species }: AnimalCreateProps)
             <main className="mx-auto w-full max-w-6xl space-y-8 p-4 md:p-8">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                     <div className="space-y-3">
-                        <Button variant="ghost" size="sm" asChild className="-ml-3 text-muted-foreground">
+                        <Button variant="ghost" size="sm" asChild className="text-muted-foreground -ml-3">
                             <Link href="/dashboard">
                                 <ArrowLeft />
                                 Back to dashboard
@@ -60,12 +59,12 @@ export default function CreateAnimal({ enclosures, species }: AnimalCreateProps)
                                 ANIMAL CARE
                             </p>
                             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Register an animal</h1>
-                            <p className="mt-2 max-w-xl text-muted-foreground">
+                            <p className="text-muted-foreground mt-2 max-w-xl">
                                 Add an animal to the zoo directory and assign it to its current enclosure.
                             </p>
                         </div>
                     </div>
-                    <div className="hidden items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm text-muted-foreground sm:flex">
+                    <div className="bg-background text-muted-foreground hidden items-center gap-2 rounded-full border px-4 py-2 text-sm sm:flex">
                         <ShieldCheck className="size-4 text-emerald-600" />
                         Records are saved securely
                     </div>
@@ -81,7 +80,7 @@ export default function CreateAnimal({ enclosures, species }: AnimalCreateProps)
 
                 <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
                     <Card className="overflow-hidden">
-                        <CardHeader className="border-b bg-muted/20 px-6 py-5">
+                        <CardHeader className="bg-muted/20 border-b px-6 py-5">
                             <CardTitle className="text-xl">Animal details</CardTitle>
                             <CardDescription>Enter the animal’s identification and habitat information.</CardDescription>
                         </CardHeader>
@@ -102,11 +101,11 @@ export default function CreateAnimal({ enclosures, species }: AnimalCreateProps)
                                             required
                                         />
                                         {form.errors.animal_tag_id ? (
-                                            <p id="animal_tag_id-error" className="text-sm text-destructive">
+                                            <p id="animal_tag_id-error" className="text-destructive text-sm">
                                                 {form.errors.animal_tag_id}
                                             </p>
                                         ) : (
-                                            <p id="animal_tag_id-hint" className="text-xs text-muted-foreground">
+                                            <p id="animal_tag_id-hint" className="text-muted-foreground text-xs">
                                                 Tags are stored in uppercase.
                                             </p>
                                         )}
@@ -131,7 +130,11 @@ export default function CreateAnimal({ enclosures, species }: AnimalCreateProps)
                                                 <option key={name} value={name} />
                                             ))}
                                         </datalist>
-                                        {form.errors.species && <p id="species-error" className="text-sm text-destructive">{form.errors.species}</p>}
+                                        {form.errors.species && (
+                                            <p id="species-error" className="text-destructive text-sm">
+                                                {form.errors.species}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -157,7 +160,11 @@ export default function CreateAnimal({ enclosures, species }: AnimalCreateProps)
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {form.errors.enclosure_id && <p id="enclosure_id-error" className="text-sm text-destructive">{form.errors.enclosure_id}</p>}
+                                    {form.errors.enclosure_id && (
+                                        <p id="enclosure_id-error" className="text-destructive text-sm">
+                                            {form.errors.enclosure_id}
+                                        </p>
+                                    )}
                                     {enclosures.length === 0 && (
                                         <p className="text-sm text-amber-700 dark:text-amber-400">
                                             No enclosures are available yet. Add an enclosure before registering an animal.
@@ -181,7 +188,7 @@ export default function CreateAnimal({ enclosures, species }: AnimalCreateProps)
                     <aside className="space-y-4">
                         <Card className="overflow-hidden border-emerald-900 bg-emerald-950 text-emerald-50 shadow-sm">
                             <CardContent className="relative space-y-5 p-6">
-                                <div className="absolute -right-7 -top-8 size-36 rounded-full bg-emerald-700/40 blur-2xl" />
+                                <div className="absolute -top-8 -right-7 size-36 rounded-full bg-emerald-700/40 blur-2xl" />
                                 <div className="relative flex size-11 items-center justify-center rounded-xl bg-white/10">
                                     <Sparkles className="size-5 text-emerald-200" />
                                 </div>
@@ -198,7 +205,7 @@ export default function CreateAnimal({ enclosures, species }: AnimalCreateProps)
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-base">Before you save</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-3 text-sm text-muted-foreground">
+                            <CardContent className="text-muted-foreground space-y-3 text-sm">
                                 <p className="flex gap-2">
                                     <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
                                     Confirm the animal tag matches its identification.
