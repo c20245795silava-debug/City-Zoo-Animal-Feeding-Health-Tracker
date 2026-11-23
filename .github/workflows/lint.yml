@@ -33,10 +33,10 @@ jobs:
         run: php vendor/bin/pint
 
       - name: Format Frontend
-        run: npm run format
+        run: node node_modules/prettier/bin/prettier.cjs --write resources/
 
       - name: Lint Frontend
-        run: npm run lint
+        run: node node_modules/eslint/bin/eslint.js . --fix
 
       # - name: Commit Changes
       #   uses: stefanzweifel/git-auto-commit-action@v5
